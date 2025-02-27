@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Authentication</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+ @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap");
+
+* {
+  transition: 0.1s ease;
+}
+
+body {
+    background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%);
+        font-family: "Montserrat", sans-serif;
+        margin: 0.5px;
+    }
+
+a {
+  text-decoration: none;
+}
+
+.container-shadow {
+  position: absolute;
+  width: 525px;
+  height: 675px;
+  left: 50%;
+  margin-left: -262.5px;
+  margin-top: 60px;
+  box-shadow: 0px 30px 50px -20px #000;
+}
+
+.container {
+  position: absolute;
+  width: 525px;
+  height: 675px;
+  left: 50%;
+  margin-left: -262.5px;
+  margin-top: 60px;
+  background: linear-gradient(90deg, #485e76 0%, #3b4249 100%);
+  box-shadow: 0px 0px 50px -20px #000;
+}
+
+.wrap {
+  position: relative;
+  width: 400px;
+  margin: 0 auto;
+}
+
+.headings {
+  position: relative;
+  margin: 90px auto 70px;
+}
+
+.headings > a {
+  color: rgba(255, 255, 255, 0.7);
+  padding-bottom: 10px;
+  border-bottom: solid 2px rgba(17, 97, 237, 0);
+  display: inline-block;
+}
+
+.headings > a:first-child {
+  margin-left: 20px;
+  margin-right: 45px;
+}
+
+.headings > a:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+.headings > a.active {
+  color: rgba(255, 255, 255, 1);
+  border-bottom: solid 4px #aac7f0;
+  box-shadow: 0 5px 5px -5px #1d2124;
+}
+
+.headings > a span {
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+}
+
+label {
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  padding: 13px 20px;
+  position: relative;
+  display: block;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1px;
+  background: transparent;
+  padding: 10px 20px;
+  border: none;
+  border-bottom: 2px solid #1d2124;
+  outline: none;
+  box-sizing: border-box;
+
+  margin-bottom: 10px;
+}
+
+input:active,
+input:focus {
+  border-bottom: 0.12em solid #aae7f0;
+  border-color: #aae7f0;
+  box-shadow: 0 5px 5px -5px #aae7f0;
+}
+
+
+
+
+
+
+
+
+
+.button {
+  width: 100%;
+  background: #aae7f0;
+  color: #2c353e;
+  text-transform: uppercase;
+  margin-top: 1.3em;
+  padding: 12px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.button:hover {
+  background: #d0fff2;
+  box-shadow: 0 0 5px #aae7f0, 0 0 30px #aae7f0, 0 0 50px #aae7f0;
+}
+
+#sign-up-form input[type="submit"] {
+  margin-top: 50px;
+}
+
+
+
+
+
+#sign-in-form {
+  display: block;
+}
+
+#sign-up-form {
+  display: none;
+}
+
+@media (max-width: 524px) {
+  .container-shadow {
+    width: 400px;
+    margin-top: 60px;
+    left: 50%;
+    margin-left: -200px;
+  }
+
+  .container {
+    width: 400px;
+    margin-top: 60px;
+    left: 50%;
+    margin-left: -200px;
+  }
+
+  .wrap {
+    width: 300px;
+  }
+
+
+}
+
+@media (max-width: 399px) {
+  .container-shadow {
+    width: 100%;
+    margin: 0px;
+    left: inherit;
+  }
+
+  .container {
+    width: 100%;
+    margin: 0px;
+    left: inherit;
+  }
+
+  .wrap {
+    width: 80%;
+  }
+}
+
+@media (max-width: 330px) {
+  .wrap {
+    width: 90%;
+  }
+}
+
+
+        video {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-shadow"></div>
+    <div class="container">
+      <div class="wrap">
+        <div class="headings">
+          <a id="sign-in" href="#" class="active"><span>Log In</span></a>
+          <a id="sign-up" href="#"><span>Sign Up</span></a>
+        </div>
+        <div id="sign-in-form">
+            <form onsubmit="event.preventDefault(); startCapture('login');">
+                <label for="login-email">Email</label>
+                <input id="login-email" type="email" required />
+                <button type="submit" class="button">Login with Face</button>
+            </form>
+        </div>
+        
+        <div id="sign-up-form">
+            <form onsubmit="event.preventDefault(); startCapture('signup');">
+                <label for="signup-email">Email</label>
+                <input id="signup-email" type="email" required />
+                <button type="submit" class="button">Sign Up with Face</button>
+            </form>
+        </div>
+        
+        <video id="video" width="320" height="240" autoplay></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+    </div>
+</div>
+
+
+    
+    <script>
+        const video = document.getElementById("video");
+        navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+            video.srcObject = stream;
+        }).catch(err => console.error("Webcam access error:", err));
+
+        function toggleForm(formId) {
+            document.getElementById("sign-in-form").style.display = (formId === "sign-in-form") ? "block" : "none";
+            document.getElementById("sign-up-form").style.display = (formId === "sign-up-form") ? "block" : "none";
+        }
+
+        function startCapture(action) {
+    const canvas = document.getElementById("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imageData = canvas.toDataURL("image/jpeg");
+    const email = document.getElementById(action === 'signup' ? "signup-email" : "login-email").value;
+
+    if (!email) {
+        alert("Please enter an email.");
+        return;
+    }
+
+    // Check email before signing up
+    if(action === 'signup') {
+        $.ajax({
+            type: 'POST',
+            url: '/check_email',
+            contentType: 'application/json', // Specify content type as JSON
+            data: JSON.stringify({ email: email }), // Send email as JSON
+            success: function(response) {
+                if (response.exists) {
+                    alert(response.message); // Show error if email exists
+                    return;
+                }
+                // Proceed with signup if email doesn't exist
+                signupWithFace(imageData, email);
+            }
+        });
+    } else {
+        loginWithFace(imageData, email);
+    }
+}
+
+function signupWithFace(imageData, email) {
+    fetch('/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, image: imageData })
+    })
+    .then(response => response.json())
+    .then(data => alert(data.message))
+    .catch(error => console.error("Error:", error));
+}
+
+function loginWithFace(imageData, email) {
+    fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, image: imageData })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Login Successful!") {
+            alert(data.message)
+            window.location.href = "https://www.youtube.com/watch?v=xvFZjo5PgG0";  // Redirect to YouTube
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+
+
+$(document).ready(function () {
+  $("#sign-up").click(function () {
+    $("#sign-in").removeClass("active");
+    $("#sign-in-form").hide();
+    $("#sign-up").addClass("active");
+    $("#sign-up-form").show();
+  });
+  $("#sign-in").click(function () {
+    $("#sign-in").addClass("active");
+    $("#sign-in-form").show();
+    $("#sign-up").removeClass("active");
+    $("#sign-up-form").hide();
+  });
+});
+    </script>
+
+
+
+
+</body>
+</html>
