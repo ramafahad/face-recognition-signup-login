@@ -33,11 +33,13 @@ This repository provides a simple implementation of a facial recognition-based a
    ```bash
    python app.py
    
--Allow camera access in your browser to be able to capture your face
+- Go to http://127.0.0.1:5000
+  
+- Allow camera access in your browser to be able to capture your face
 
--Signup by filling your email then clicking "Sign up with face" to capture your face, don't forget to smile!
+- Signup by filling your email then clicking "Sign up with face" to capture your face, don't forget to smile!
 
--Login by filling your registered email then clicking "log in  with face" to verify your login attempt by comparing the live-feed to stored features
+- Login by filling your registered email then clicking "log in  with face" to verify your login attempt by comparing the live-feed to stored features
 
 
 ## Acknowledgements
