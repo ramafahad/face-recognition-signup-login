@@ -5,11 +5,12 @@ import numpy as np
 import os
 import base64
 import mysql.connector
-from database_connection import get_db_connection
+from database_connection import get_db_connection, encrypt_data, decrypt_data
+
 from ultralytics import YOLO
 
 
-phone_detect = YOLO("yolo11n.pt") 
+phone_detect = YOLO("best_yolo_model_phone.pt") 
 
 
 app = Flask(__name__)
@@ -67,12 +68,14 @@ def signup():
 
     encoding_array = encodings[0]
     encoding_bytes = encoding_array.tobytes()
+    encrypted_encoding = encrypt_data(encoding_bytes.hex()) 
+
 
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO users (email, face_encoding, image_path) VALUES (%s, %s, %s)",
-        (email, encoding_bytes, image_path)
+        (email, encrypted_encoding, image_path)
     )
     conn.commit()
     conn.close()
@@ -96,8 +99,10 @@ def login():
 
     if not result:
         return jsonify({"message": "Email not found"}), 401
-
-    stored_encoding = np.frombuffer(result[0], dtype=np.float64)
+      
+    encrypted_encoding = result[0]
+    decrypted_encoding_hex = decrypt_data(encrypted_encoding) 
+    stored_encoding = np.frombuffer(bytes.fromhex(decrypted_encoding_hex), dtype=np.float64)
 
     image_bytes = base64.b64decode(image_data.split(',')[1])
     image_np = np.frombuffer(image_bytes, dtype=np.uint8)
@@ -112,8 +117,8 @@ def login():
     for result in results:
         for box in result.boxes:
             label = result.names[int(box.cls)]
-            if "cell phone" in label.lower():
-                return jsonify({"message": "📵 Phone detected! Authentication denied."}), 403
+            if "phone" in label.lower():
+                return jsonify({"message": "Phone detected! Authentication denied."}), 403
 
 
 

@@ -4,3 +4,4 @@ face-recognition
 numpy
 ultralytics
 mysql-connector-python
+cryptography
